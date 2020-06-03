@@ -1,5 +1,4 @@
 ﻿using Extensions;
-using FinancesGameLib.Models.Enums;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,11 +7,10 @@ namespace FinancesGameLib.Models
     /// <summary>Represents the <see cref="Player"/> playing the game.</summary>
     public class Player : BaseINPC
     {
-        private Person _currentPlayer;
         private decimal _money;
         private List<Bill> _bills = new List<Bill>();
         private List<Expense> _expenses = new List<Expense>();
-        private List<Person> _family = new List<Person>();
+        private List<Person> _household = new List<Person>();
         private List<Home> _homes = new List<Home>();
         private List<Vehicle> _vehicles = new List<Vehicle>();
 
@@ -27,11 +25,11 @@ namespace FinancesGameLib.Models
 
         #region Modifying Properties
 
-        /// <summary>The current <see cref="Person"/> the <see cref="Player"/> controls.</summary>
-        public Person CurrentPlayer
+        /// <summary>The <see cref="Player"/>'s family members.</summary>
+        public List<Person> Household
         {
-            get => _currentPlayer;
-            set { _currentPlayer = value; NotifyPropertyChanged(nameof(CurrentPlayer)); }
+            get => _household;
+            set { _household = value; NotifyPropertyChanged(nameof(Household)); }
         }
 
         /// <summary>The amount of money the <see cref="Player"/> has.</summary>
@@ -55,13 +53,6 @@ namespace FinancesGameLib.Models
             set { _expenses = value; NotifyPropertyChanged(nameof(Expenses)); }
         }
 
-        /// <summary>The <see cref="Player"/>'s family members.</summary>
-        public List<Person> Family
-        {
-            get => _family;
-            set { _family = value; NotifyPropertyChanged(nameof(Family)); }
-        }
-
         /// <summary>All the <see cref="Homes"/> the <see cref="Player"/> has.</summary>
         public List<Home> Homes
         {
@@ -79,6 +70,12 @@ namespace FinancesGameLib.Models
         #endregion Modifying Properties
 
         #region Helper Properties
+
+        /// <summary>The amount of income the entire family has in a month.</summary>
+        public decimal HouseholdMonthlyIncome => Household.Sum(person => person.MonthlyIncome);
+
+        /// <summary>The amount of income the entire family has in a month, formatted.</summary>
+        public string HouseholdMonthlyIncomeToString => HouseholdMonthlyIncome.ToString("C2");
 
         /// <summary>The money required for all monthly bills.</summary>
         public decimal MonthlyBills => Bills.Sum(bill => bill.Cost);
@@ -160,14 +157,14 @@ namespace FinancesGameLib.Models
 
         #endregion Expense Management
 
-        #region Family Management
+        #region Household Management
 
-        /// <summary>Adds a <see cref="Person"/> to the list of <see cref="Player"/>'s <see cref="Person"/>s.</summary>
+        /// <summary>Adds a <see cref="Person"/> to the <see cref="Player"/>'s Household.</summary>
         /// <param name="newPerson"><see cref="Person"/> to be added</param>
         public void AddPerson(Person newPerson)
         {
-            Family.Add(newPerson);
-            UpdateFamily();
+            Household.Add(newPerson);
+            UpdateHousehold();
         }
 
         /// <summary>Replaces an old <see cref="Person"/> in the list of <see cref="Player"/>'s <see cref="Person"/>s with a new one.</summary>
@@ -175,26 +172,29 @@ namespace FinancesGameLib.Models
         /// <param name="newPerson"><see cref="Person"/> to replace the old one</param>
         public void ModifyPerson(Person oldPerson, Person newPerson)
         {
-            Family.Replace(oldPerson, newPerson);
-            UpdateFamily();
+            Household.Replace(oldPerson, newPerson);
+            UpdateHousehold();
         }
 
         /// <summary>Removes a <see cref="Person"/> from the list of <see cref="Player"/>'s <see cref="Person"/>s.</summary>
         /// <param name="removePerson"><see cref="Person"/> to be removed</param>
         public void RemovePerson(Person removePerson)
         {
-            Family.Remove(removePerson);
-            UpdateFamily();
+            if (Household.Count > 1)
+            {
+                Household.Remove(removePerson);
+                UpdateHousehold();
+            }
         }
 
         /// <summary>Sorts and refreshes the list of family.</summary>
-        private void UpdateFamily()
+        private void UpdateHousehold()
         {
             //TODO Implement monthly expenses changing because of family members.
-            NotifyPropertyChanged(nameof(Family));
+            NotifyPropertyChanged(nameof(Household));
         }
 
-        #endregion Family Management
+        #endregion Household Management
 
         #region Home Management
 
