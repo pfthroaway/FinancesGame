@@ -24,7 +24,7 @@ namespace FinancesGameLib.Models.Database
         /// <summary>Retrieves a list of names from the database.</summary>
         /// <param name="tableName">Name of the table from which to retrieve the names</param>
         /// <returns>List of names from the database</returns>
-        public async Task<List<string>> GetAllNames(string tableName)
+        public async Task<List<string>> GetNames(string tableName)
         {
             List<string> names = new List<string>();
             DataSet ds = await SQLiteHelper.FillDataSet(_con, $"SELECT * FROM {tableName}");

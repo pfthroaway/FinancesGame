@@ -62,6 +62,7 @@ namespace FinancesGame.Models
 
         public static Job GenerateJob()
         {
+            //TODO Generate job from the database.
         }
 
         public static string GenerateMaleFirstName() => MaleFirstNames[Functions.GenerateRandomNumber(0, MaleFirstNames.Count - 1)];
