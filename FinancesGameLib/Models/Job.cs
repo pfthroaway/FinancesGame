@@ -29,7 +29,11 @@ namespace FinancesGameLib.Models
         }
 
         /// <summary>The minimum education level required for a <see cref="Player"/> to get this <see cref="Job"/>.</summary>
-        public EducationLevel MinimumEducationLevel { get => _minimumEducationLevel; set => _minimumEducationLevel = value; }
+        public EducationLevel MinimumEducationLevel
+        {
+            get => _minimumEducationLevel;
+            set { _minimumEducationLevel = value; NotifyPropertyChanged(nameof(MinimumEducationLevel)); }
+        }
 
         /// <summary>Is the <see cref="Job"/> paid as salary?</summary>
         public bool IsSalary

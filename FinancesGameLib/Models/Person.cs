@@ -1,5 +1,6 @@
 ﻿using Extensions;
 using FinancesGameLib.Models.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,7 +10,7 @@ namespace FinancesGameLib.Models
     public class Person : BaseINPC
     {
         private string _firstName, _lastName;
-        private int _age;
+        private DateTime _birthDate;
         private EducationLevel _educationLevel;
         private List<Job> _jobs = new List<Job>();
 
@@ -30,10 +31,10 @@ namespace FinancesGameLib.Models
         }
 
         /// <summary>The <see cref="Person"/>'s age.</summary>
-        public int Age
+        public DateTime BirthDate
         {
-            get => _age;
-            set { _age = value; NotifyPropertyChanged(nameof(Age)); }
+            get => _birthDate;
+            set { _birthDate = value; NotifyPropertyChanged(nameof(BirthDate)); }
         }
 
         /// <summary>All <see cref="Job"/>s the <see cref="Player"/> has.</summary>
@@ -151,5 +152,14 @@ namespace FinancesGameLib.Models
         }
 
         #endregion Job Management
+
+        public Person(string firstName, string lastName, DateTime birthDate, EducationLevel educationLevel, List<Job> jobs)
+        {
+            FirstName = firstName;
+            LastName = lastName;
+            BirthDate = birthDate;
+            EducationLevel = educationLevel;
+            Jobs = jobs;
+        }
     }
 }

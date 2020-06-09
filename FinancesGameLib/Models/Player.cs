@@ -7,10 +7,10 @@ namespace FinancesGameLib.Models
     /// <summary>Represents the <see cref="Player"/> playing the game.</summary>
     public class Player : BaseINPC
     {
-        private decimal _money;
-        private List<Bill> _bills = new List<Bill>();
-        private List<Expense> _expenses = new List<Expense>();
         private List<Person> _household = new List<Person>();
+        private decimal _money;
+        private List<Expense> _bills = new List<Expense>();
+        private List<Expense> _expenses = new List<Expense>();
         private List<Home> _homes = new List<Home>();
         private List<Vehicle> _vehicles = new List<Vehicle>();
 
@@ -19,7 +19,7 @@ namespace FinancesGameLib.Models
         // If own, they have property taxes.
         // If players have mortgage, they have much higher maintenance costs.
         // They all have bills and monthly expenses.
-        // Bills are things to be paid for every month like vehicle/home insurance, electricity, garbage, sewer, etc. They are relatively static.
+        // Expenses are things to be paid for every month like vehicle/home insurance, electricity, garbage, sewer, etc. They are relatively static.
         // Monthly expenses are things like clothing and food, diapers, light bulbs, etc.
         //TODO Maybe implement a Household class which sums all the income for the family.
 
@@ -37,13 +37,6 @@ namespace FinancesGameLib.Models
         {
             get => _money;
             set { _money = value; NotifyPropertyChanged(nameof(Money)); }
-        }
-
-        /// <summary>All the monthly <see cref="Bill"/>s the <see cref="Player"/> is required to pay.</summary>
-        public List<Bill> Bills
-        {
-            get => _bills;
-            set { _bills = value; NotifyPropertyChanged(nameof(Bills)); }
         }
 
         /// <summary>All the monthly <see cref="Expense"/>s the <see cref="Player"/> is required to pay.</summary>
@@ -77,49 +70,7 @@ namespace FinancesGameLib.Models
         /// <summary>The amount of income the entire family has in a month, formatted.</summary>
         public string HouseholdMonthlyIncomeToString => HouseholdMonthlyIncome.ToString("C2");
 
-        /// <summary>The money required for all monthly bills.</summary>
-        public decimal MonthlyBills => Bills.Sum(bill => bill.Cost);
-
-        /// <summary>The money required for all monthly expenses, formatted.</summary>
-        public string MonthlyBillsToString => MonthlyBills.ToString("C2");
-
         #endregion Helper Properties
-
-        #region Bill Management
-
-        /// <summary>Adds a <see cref="Bill"/> to the list of <see cref="Player"/>'s <see cref="Bill"/>s.</summary>
-        /// <param name="newBill"><see cref="Bill"/> to be added</param>
-        public void AddBill(Bill newBill)
-        {
-            Bills.Add(newBill);
-            UpdateBills();
-        }
-
-        /// <summary>Replaces an old <see cref="Bill"/> in the list of <see cref="Player"/>'s <see cref="Bill"/>s with a new one.</summary>
-        /// <param name="oldBill"><see cref="Bill"/> to be replaced</param>
-        /// <param name="newBill"><see cref="Bill"/> to replace the old one</param>
-        public void ModifyBill(Bill oldBill, Bill newBill)
-        {
-            Bills.Replace(oldBill, newBill);
-            UpdateBills();
-        }
-
-        /// <summary>Removes a <see cref="Bill"/> from the list of <see cref="Player"/>'s <see cref="Bill"/>s.</summary>
-        /// <param name="removeBill"><see cref="Bill"/> to be removed</param>
-        public void RemoveBill(Bill removeBill)
-        {
-            Bills.Remove(removeBill);
-            NotifyPropertyChanged(nameof(Bills));
-        }
-
-        /// <summary>Sorts and refreshes the list of <see cref="Bill"/>s.</summary>
-        private void UpdateBills()
-        {
-            Bills = Bills.OrderBy(bill => bill.Name).ToList();
-            NotifyPropertyChanged(nameof(Bills));
-        }
-
-        #endregion Bill Management
 
         #region Expense Management
 
@@ -229,21 +180,21 @@ namespace FinancesGameLib.Models
             if (Homes.Count > 0)
             {
                 Homes = Homes.OrderBy(home => home.Name).ToList();
-                if (Bills.Any(bill => bill.Name == "Home Insurance"))
-                    ModifyBill(Bills.Find(bill => bill.Name == "Home Insurance"), new Bill("Home Insurance", Homes.Sum(home => home.Insurance)));
+                if (Expenses.Any(bill => bill.Name == "Home Insurance"))
+                    ModifyExpense(Expenses.Find(bill => bill.Name == "Home Insurance"), new Expense("Home Insurance", Homes.Sum(home => home.Insurance)));
                 else
-                    AddBill(new Bill("Home Insurance", Homes.Sum(home => home.Insurance)));
-                if (Bills.Any(bill => bill.Name == "Home Maintenance"))
-                    ModifyBill(Bills.Find(bill => bill.Name == "Home Maintenance"), new Bill("Home Maintenance", Homes.Sum(home => home.Maintenance)));
+                    AddExpense(new Expense("Home Insurance", Homes.Sum(home => home.Insurance)));
+                if (Expenses.Any(bill => bill.Name == "Home Maintenance"))
+                    ModifyExpense(Expenses.Find(bill => bill.Name == "Home Maintenance"), new Expense("Home Maintenance", Homes.Sum(home => home.Maintenance)));
                 else
-                    AddBill(new Bill("Home Maintenance", Homes.Sum(home => home.Maintenance)));
+                    AddExpense(new Expense("Home Maintenance", Homes.Sum(home => home.Maintenance)));
             }
             else
             {
-                if (Bills.Any(bill => bill.Name == "Home Insurance"))
-                    RemoveBill(Bills.Find(bill => bill.Name == "Home Insurance"));
-                if (Bills.Any(bill => bill.Name == "Home Maintenance"))
-                    RemoveBill(Bills.Find(bill => bill.Name == "Home Maintenance"));
+                if (Expenses.Any(bill => bill.Name == "Home Insurance"))
+                    RemoveExpense(Expenses.Find(bill => bill.Name == "Home Insurance"));
+                if (Expenses.Any(bill => bill.Name == "Home Maintenance"))
+                    RemoveExpense(Expenses.Find(bill => bill.Name == "Home Maintenance"));
             }
 
             NotifyPropertyChanged(nameof(Homes));
@@ -284,26 +235,35 @@ namespace FinancesGameLib.Models
             if (Vehicles.Count > 0)
             {
                 Vehicles = Vehicles.OrderBy(vehicle => vehicle.Name).ToList();
-                if (Bills.Any(bill => bill.Name == "Vehicle Insurance"))
-                    ModifyBill(Bills.Find(bill => bill.Name == "Vehicle Insurance"), new Bill("Vehicle Insurance", Vehicles.Sum(vehicle => vehicle.Insurance)));
+                if (Expenses.Any(bill => bill.Name == "Vehicle Insurance"))
+                    ModifyExpense(Expenses.Find(bill => bill.Name == "Vehicle Insurance"), new Expense("Vehicle Insurance", Vehicles.Sum(vehicle => vehicle.Insurance)));
                 else
-                    AddBill(new Bill("Vehicle Insurance", Vehicles.Sum(vehicle => vehicle.Insurance)));
-                if (Bills.Any(bill => bill.Name == "Vehicle Maintenance"))
-                    ModifyBill(Bills.Find(bill => bill.Name == "Vehicle Maintenance"), new Bill("Vehicle Maintenance", Vehicles.Sum(vehicle => vehicle.Maintenance)));
+                    AddExpense(new Expense("Vehicle Insurance", Vehicles.Sum(vehicle => vehicle.Insurance)));
+                if (Expenses.Any(bill => bill.Name == "Vehicle Maintenance"))
+                    ModifyExpense(Expenses.Find(bill => bill.Name == "Vehicle Maintenance"), new Expense("Vehicle Maintenance", Vehicles.Sum(vehicle => vehicle.Maintenance)));
                 else
-                    AddBill(new Bill("Vehicle Maintenance", Vehicles.Sum(vehicle => vehicle.Maintenance)));
+                    AddExpense(new Expense("Vehicle Maintenance", Vehicles.Sum(vehicle => vehicle.Maintenance)));
             }
             else
             {
-                if (Bills.Any(bill => bill.Name == "Vehicle Insurance"))
-                    RemoveBill(Bills.Find(bill => bill.Name == "Vehicle Insurance"));
-                if (Bills.Any(bill => bill.Name == "Vehicle Maintenance"))
-                    RemoveBill(Bills.Find(bill => bill.Name == "Vehicle Maintenance"));
+                if (Expenses.Any(bill => bill.Name == "Vehicle Insurance"))
+                    RemoveExpense(Expenses.Find(bill => bill.Name == "Vehicle Insurance"));
+                if (Expenses.Any(bill => bill.Name == "Vehicle Maintenance"))
+                    RemoveExpense(Expenses.Find(bill => bill.Name == "Vehicle Maintenance"));
             }
 
             NotifyPropertyChanged(nameof(Vehicles));
         }
 
         #endregion Vehicle Management
+
+        public Player(List<Person> household, decimal money, List<Expense> expenses, List<Home> homes, List<Vehicle> vehicles)
+        {
+            Household = household;
+            Money = money;
+            Expenses = expenses;
+            Homes = homes;
+            Vehicles = vehicles;
+        }
     }
 }
