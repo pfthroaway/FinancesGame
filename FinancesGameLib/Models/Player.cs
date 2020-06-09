@@ -9,7 +9,6 @@ namespace FinancesGameLib.Models
     {
         private List<Person> _household = new List<Person>();
         private decimal _money;
-        private List<Expense> _bills = new List<Expense>();
         private List<Expense> _expenses = new List<Expense>();
         private List<Home> _homes = new List<Home>();
         private List<Vehicle> _vehicles = new List<Vehicle>();

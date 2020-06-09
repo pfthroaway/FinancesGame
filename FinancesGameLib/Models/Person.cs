@@ -2,6 +2,7 @@
 using FinancesGameLib.Models.Enums;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace FinancesGameLib.Models
@@ -10,6 +11,7 @@ namespace FinancesGameLib.Models
     public class Person : BaseINPC
     {
         private string _firstName, _lastName;
+        private Gender _gender;
         private DateTime _birthDate;
         private EducationLevel _educationLevel;
         private List<Job> _jobs = new List<Job>();
@@ -28,6 +30,13 @@ namespace FinancesGameLib.Models
         {
             get => _lastName;
             set { _lastName = value; NotifyPropertyChanged(nameof(LastName), nameof(Name)); }
+        }
+
+        /// <summary>The person's gender.</summary>
+        public Gender Gender
+        {
+            get => _gender;
+            set { _gender = value; NotifyPropertyChanged(nameof(Gender)); }
         }
 
         /// <summary>The <see cref="Person"/>'s age.</summary>
@@ -61,59 +70,8 @@ namespace FinancesGameLib.Models
         /// <summary>The last then first names of the <see cref="Person"/>.</summary>
         public string LastFirst => $"{LastName}, {FirstName}";
 
-        /// <summary>The <see cref="Player"/>'s daily income from all <see cref="Job"/>s.</summary>
-        public decimal DailyIncome
-        {
-            get
-            {
-                decimal income = 0m;
-                foreach (Job job in Jobs)
-                {
-                    if (job.IsSalary)
-                        income += job.DailySalary;
-                    else
-                        income += job.DailyWages;
-                }
-                return income;
-            }
-        }
-
-        /// <summary>The <see cref="Player"/>'s weekly income from all <see cref="Job"/>s.</summary>
-        public decimal WeeklyIncome
-        {
-            get
-            {
-                decimal income = 0m;
-                foreach (Job job in Jobs)
-                {
-                    if (job.IsSalary)
-                        income += job.WeeklySalary;
-                    else
-                        income += job.WeeklyWages;
-                }
-                return income;
-            }
-        }
-
         /// <summary>The <see cref="Player"/>'s monthly income from all <see cref="Job"/>s.</summary>
-        public decimal MonthlyIncome
-        {
-            get
-            {
-                decimal income = 0m;
-                foreach (Job job in Jobs)
-                {
-                    if (job.IsSalary)
-                        income += job.MonthlySalary;
-                    else
-                        income += job.MonthlyWages;
-                }
-                return income;
-            }
-        }
-
-        /// <summary>The money required for all travel expenses.</summary>
-        public decimal MonthlyTravelExpenses => Jobs.Sum(job => job.DailyTravelExpenses * job.DaysPerMonth);
+        public decimal MonthlyIncome => Jobs.Sum(job => job.MonthlyIncome);
 
         #endregion Helper Properties
 
@@ -153,10 +111,11 @@ namespace FinancesGameLib.Models
 
         #endregion Job Management
 
-        public Person(string firstName, string lastName, DateTime birthDate, EducationLevel educationLevel, List<Job> jobs)
+        public Person(string firstName, string lastName, Gender gender, DateTime birthDate, EducationLevel educationLevel, List<Job> jobs)
         {
             FirstName = firstName;
             LastName = lastName;
+            Gender = gender;
             BirthDate = birthDate;
             EducationLevel = educationLevel;
             Jobs = jobs;
